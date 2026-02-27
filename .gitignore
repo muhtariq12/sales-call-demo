@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+.DS_Store
+*.log
+dist/
+build/
+.cloudflared/
+.ngrok2/
+cloudflare.log
+ngrok.log
+localtunnel.log
