@@ -112,8 +112,8 @@ app.post('/outgoing-call', async (req, res) => {
     }
 
     // Get the domain for the callback URL
-    const protocol = req.protocol;
     const host = process.env.DOMAIN || req.hostname;
+    const protocol = host === 'localhost' || host.includes('localhost') ? 'http' : 'https';
     const twimlUrl = `${protocol}://${host}/twiml`;
 
     console.log(`[${new Date().toISOString()}] Initiating outgoing call from ${fromNumber} to ${toNumber}`);
@@ -123,7 +123,7 @@ app.post('/outgoing-call', async (req, res) => {
       from: fromNumber,
       to: toNumber,
       url: twimlUrl,
-      method: 'POST',
+      method: 'GET',
     });
 
     console.log(`[${new Date().toISOString()}] Call created: ${call.sid}`);
