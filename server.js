@@ -76,10 +76,10 @@ const handleTwiml = (req, res) => {
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say>Thank you for calling. Your call is being recorded and transcribed in real time.</Say>
-  <Stream url="${mediaStreamUrl}" />
-  <Gather numDigits="1" timeout="10">
-    <Say>Press any key or just wait.</Say>
-  </Gather>
+  <Start>
+    <Stream url="${mediaStreamUrl}" />
+  </Start>
+  <Record maxLength="300" transcribe="false" />
   <Say>Thank you for your call.</Say>
   <Hangup />
 </Response>`;
