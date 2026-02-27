@@ -81,7 +81,7 @@ const handleTwiml = (req, res) => {
   </Start>
   <Record maxLength="300" transcribe="false" />
   <Dial>
-    <Number>+971509887463</Number>
+    <Number>+971565342976</Number>
   </Dial>
   <Say>Thank you for your call.</Say>
   <Hangup />
