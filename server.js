@@ -72,23 +72,19 @@ const handleTwiml = (req, res) => {
   // Use DOMAIN env var for the media stream URL, default to request hostname
   const host = process.env.DOMAIN || req.hostname;
   const mediaStreamUrl = `wss://${host}/media-stream`;
-  const conferenceName = req.query.conference || 'default-room';
 
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say>Connecting your call. Please wait.</Say>
+  <Say>Thank you for calling. Your call is being recorded and transcribed in real time.</Say>
   <Start>
     <Stream url="${mediaStreamUrl}" track="both_tracks" />
   </Start>
-  <Dial>
-    <Conference record="record-from-start" maxParticipants="2">${conferenceName}</Conference>
-  </Dial>
+  <Record maxLength="300" transcribe="false" />
   <Say>Thank you for your call.</Say>
   <Hangup />
 </Response>`;
 
   console.log(`[${new Date().toISOString()}] TwiML requested by Twilio`);
-  console.log(`[${new Date().toISOString()}] Conference: ${conferenceName}`);
   console.log(`[${new Date().toISOString()}] Media Stream URL: ${mediaStreamUrl}`);
   console.log(`[${new Date().toISOString()}] Full TwiML:\n${twiml}\n`);
 
@@ -105,7 +101,6 @@ app.post('/twiml', handleTwiml);
 app.post('/outgoing-call', async (req, res) => {
   try {
     const toNumber = req.body.toNumber;
-    const toNumber2 = '+971565342976'; // Second participant
     const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
     // Validate inputs
@@ -119,36 +114,26 @@ app.post('/outgoing-call', async (req, res) => {
     // Get the domain for the callback URL
     const host = process.env.DOMAIN || req.hostname;
     const protocol = host === 'localhost' || host.includes('localhost') ? 'http' : 'https';
-    const conferenceName = `conf-${Date.now()}`;
-    const twimlUrl = `${protocol}://${host}/twiml?conference=${conferenceName}`;
+    const twimlUrl = `${protocol}://${host}/twiml`;
 
-    console.log(`[${new Date().toISOString()}] Initiating conference call: ${conferenceName}`);
-    console.log(`[${new Date().toISOString()}] Calling ${toNumber} and ${toNumber2}`);
+    console.log(`[${new Date().toISOString()}] Initiating outgoing call from ${fromNumber} to ${toNumber}`);
 
-    // Create both calls to join the same conference
-    const call1 = await twilioClient.calls.create({
+    // Create the call
+    const call = await twilioClient.calls.create({
       from: fromNumber,
       to: toNumber,
       url: twimlUrl,
       method: 'GET',
     });
 
-    const call2 = await twilioClient.calls.create({
-      from: fromNumber,
-      to: toNumber2,
-      url: twimlUrl,
-      method: 'GET',
-    });
-
-    console.log(`[${new Date().toISOString()}] Calls created: ${call1.sid}, ${call2.sid}`);
+    console.log(`[${new Date().toISOString()}] Call created: ${call.sid}`);
 
     res.json({
       success: true,
-      message: 'Conference call initiated successfully',
-      conference: conferenceName,
-      call1Sid: call1.sid,
-      call2Sid: call2.sid,
-      participants: [toNumber, toNumber2],
+      message: 'Call initiated successfully',
+      callSid: call.sid,
+      from: fromNumber,
+      to: toNumber,
     });
   } catch (error) {
     console.error(`Error initiating outgoing call: ${error.message}`);
