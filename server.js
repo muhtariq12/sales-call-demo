@@ -77,7 +77,7 @@ const handleTwiml = (req, res) => {
 <Response>
   <Say>Thank you for calling. Your call is being recorded and transcribed in real time.</Say>
   <Start>
-    <Stream url="${mediaStreamUrl}" />
+    <Stream url="${mediaStreamUrl}" track="both_tracks" />
   </Start>
   <Record maxLength="300" transcribe="false" />
   <Say>Thank you for your call.</Say>
